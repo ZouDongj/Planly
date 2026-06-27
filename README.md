@@ -27,7 +27,8 @@ A beautiful, lightweight desktop schedule management app built with Tauri v2, Re
 
 ## 🖼️ Screenshots
 
-<!-- TODO: Add screenshots here -->
+<img width="1100" height="720" alt="image" src="https://github.com/user-attachments/assets/95261e0c-90e4-4ff0-ae22-048a1b7c32aa" />
+
 
 ## 🚀 Download
 
