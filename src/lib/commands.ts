@@ -103,3 +103,7 @@ export const archiveCompleted = () =>
 
 export const unarchiveTask = (id: string) =>
   invoke<void>("unarchive_task", { id });
+
+// System fonts
+export const listSystemFonts = () =>
+  invoke<string[]>("list_system_fonts");

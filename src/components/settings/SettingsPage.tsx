@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Download, Upload, Trash2, Folder, Briefcase, Heart, Star, BookOpen, Home, FolderKanban } from "lucide-react";
+import { ArrowLeft, Download, Upload, Trash2, Folder, Briefcase, Heart, Star, BookOpen, Home, FolderKanban, ChevronUp, ChevronDown, X } from "lucide-react";
 import { getVersion } from "@tauri-apps/api/app";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
-import { exportToFile, importFromFile, clearAllData } from "../../lib/commands";
+import { exportToFile, importFromFile, clearAllData, listSystemFonts } from "../../lib/commands";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Popover } from "@/components/ui/popover";
 import { useUIStore } from "../../stores/uiStore";
@@ -20,10 +20,36 @@ function loadDrawerWidth(): number {
   return 440;
 }
 
+function loadFontFamily(): string[] {
+  const saved = localStorage.getItem("planly-font-family");
+  if (!saved) return [];
+  return saved.split(",").map(s => s.trim()).filter(Boolean);
+}
+
+function loadFontSize(): number {
+  const saved = localStorage.getItem("planly-font-size");
+  if (saved) return parseFloat(saved);
+  return 14;
+}
+
+function applyFontFamily(fonts: string[]) {
+  if (fonts.length > 0) {
+    const cssValue = fonts.map(f => `'${f}'`).join(", ") + ", 'Geist Variable', sans-serif";
+    document.documentElement.style.setProperty("--app-font-family", cssValue);
+  } else {
+    document.documentElement.style.setProperty("--app-font-family", `'Geist Variable', sans-serif`);
+  }
+}
+
 export default function SettingsPage({ onBack }: { onBack: () => void }) {
   const [langOpen, setLangOpen] = useState(false);
   const [radius, setRadius] = useState(loadRadius);
   const [drawerWidth, setDrawerWidth] = useState(loadDrawerWidth);
+  const [fontFamily, setFontFamily] = useState<string[]>(loadFontFamily);
+  const [fontSize, setFontSize] = useState(loadFontSize);
+  const [fontOpen, setFontOpen] = useState(false);
+  const [systemFonts, setSystemFonts] = useState<string[]>([]);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [resultMsg, setResultMsg] = useState(""); // styled alert
   const [sidebarShortcut, setSidebarShortcut] = useState(() => localStorage.getItem("planly-shortcut-sidebar") || "Ctrl+b");
   const [recording, setRecording] = useState(false);
@@ -68,6 +94,65 @@ export default function SettingsPage({ onBack }: { onBack: () => void }) {
     setDrawerWidth(value);
     localStorage.setItem("planly-drawer-width", String(value));
     document.documentElement.style.setProperty("--drawer-width", `${value}px`);
+  };
+
+  const handleFontFamilyToggle = (font: string) => {
+    setFontFamily((prev) => {
+      let next: string[];
+      if (prev.includes(font)) {
+        next = prev.filter(f => f !== font);
+      } else {
+        next = [...prev, font];
+      }
+      if (next.length > 0) {
+        localStorage.setItem("planly-font-family", next.join(","));
+      } else {
+        localStorage.removeItem("planly-font-family");
+      }
+      applyFontFamily(next);
+      return next;
+    });
+  };
+
+  const [movedFontIndex, setMovedFontIndex] = useState<number | null>(null);
+  const [swappedFontIndex, setSwappedFontIndex] = useState<number | null>(null);
+  const [movedFontDir, setMovedFontDir] = useState<"up" | "down" | null>(null);
+
+  const handleFontFamilyReorder = (index: number, dir: "up" | "down") => {
+    const target = dir === "up" ? index - 1 : index + 1;
+    // Track BOTH the moved font and the swapped font by their NEW positions
+    const movedNewPos = target;      // the clicked font ends up at target
+    const swappedNewPos = index;      // the displaced font ends up at index
+    setFontFamily((prev) => {
+      if (target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      localStorage.setItem("planly-font-family", next.join(","));
+      applyFontFamily(next);
+      return next;
+    });
+    // Trigger slide animation — moved font slides in its direction,
+    // swapped font slides the opposite direction
+    setMovedFontIndex(movedNewPos);
+    setSwappedFontIndex(swappedNewPos);
+    setMovedFontDir(dir);
+    setTimeout(() => { setMovedFontIndex(null); setSwappedFontIndex(null); setMovedFontDir(null); }, 250);
+  };
+
+  const handleFontSizeChange = (value: number) => {
+    setFontSize(value);
+    localStorage.setItem("planly-font-size", String(value));
+    document.documentElement.style.setProperty("--app-font-size", `${value}px`);
+  };
+
+  const openFontPopover = () => {
+    setFontOpen(true);
+    if (!fontsLoaded) {
+      listSystemFonts().then((fonts) => {
+        setSystemFonts(fonts);
+        setFontsLoaded(true);
+      }).catch((e) => { console.error("Failed to list fonts:", e); });
+    }
   };
   const handleExport = async () => {
     try {
@@ -170,6 +255,103 @@ export default function SettingsPage({ onBack }: { onBack: () => void }) {
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
                 <span>{__("settings.sharp")}</span>
                 <span>{__("settings.round")}</span>
+              </div>
+            </div>
+            {/* Font Family — multi-select with ordered fallback chain */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <div>
+                  <label className="text-[13px] text-foreground">{__("settings.fontFamily")}</label>
+                </div>
+                <Popover open={fontOpen} onOpenChange={setFontOpen}>
+                  <PopoverTrigger>
+                    <button
+                      onClick={openFontPopover}
+                      className="flex items-center gap-1.5 h-7 px-3 rounded-lg border border-input text-xs transition-colors hover:border-primary/50 text-foreground"
+                    >
+                      {__("settings.fontFamilyAdd")}
+                      <span className="text-[9px] text-muted-foreground">▼</span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-0" side="bottom" sideOffset={4} align="end">
+                    <div className="max-h-64 overflow-y-auto p-1">
+                      {systemFonts.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => handleFontFamilyToggle(f)}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs transition-colors truncate flex items-center gap-2 ${fontFamily.includes(f) ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted/50"}`}
+                          style={{ fontFamily: `'${f}', sans-serif` }}
+                        >
+                          {fontFamily.includes(f) && <span className="text-primary flex-shrink-0">✓</span>}
+                          <span className="truncate">{f}</span>
+                        </button>
+                      ))}
+                      {!fontsLoaded && (
+                        <div className="px-2.5 py-2 text-xs text-muted-foreground text-center">Loading...</div>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              {/* Selected font chain with reorder controls */}
+              {fontFamily.length > 0 ? (
+                <div className="space-y-1">
+                  {fontFamily.map((f, i) => {
+                    const animClass =
+                      movedFontIndex === i && movedFontDir === "up" ? "animate-slide-up"
+                      : movedFontIndex === i && movedFontDir === "down" ? "animate-slide-down"
+                      : swappedFontIndex === i && movedFontDir === "up" ? "animate-slide-down"
+                      : swappedFontIndex === i && movedFontDir === "down" ? "animate-slide-up"
+                      : "";
+                    return (
+                    <div key={f} className={`flex items-center gap-1 bg-muted/50 rounded-md px-2 py-1 ${animClass}`}>
+                      <span className="text-[10px] text-muted-foreground/60 w-4 text-center flex-shrink-0">{i + 1}</span>
+                      <span className="text-xs text-foreground flex-1 truncate" style={{ fontFamily: `'${f}', sans-serif` }}>{f}</span>
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                        <button
+                          onClick={() => handleFontFamilyReorder(i, "up")}
+                          disabled={i === 0}
+                          className="w-5 h-5 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-foreground/10 disabled:opacity-20 disabled:hover:bg-transparent transition-colors"
+                          title="Move up"
+                        ><ChevronUp size={13} /></button>
+                        <button
+                          onClick={() => handleFontFamilyReorder(i, "down")}
+                          disabled={i === fontFamily.length - 1}
+                          className="w-5 h-5 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-foreground/10 disabled:opacity-20 disabled:hover:bg-transparent transition-colors"
+                          title="Move down"
+                        ><ChevronDown size={13} /></button>
+                        <button
+                          onClick={() => handleFontFamilyToggle(f)}
+                          className="w-5 h-5 inline-flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          title="Remove"
+                        ><X size={13} /></button>
+                      </div>
+                    </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-[11px] text-muted-foreground/50 italic px-1">{__("settings.defaultFont")}</div>
+              )}
+            </div>
+            {/* Font Size */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-[13px] text-foreground">{__("settings.fontSize")}</label>
+                <span className="text-xs text-muted-foreground">{fontSize}px</span>
+              </div>
+              <input
+                type="range"
+                min="12"
+                max="20"
+                step="1"
+                value={fontSize}
+                onChange={(e) => handleFontSizeChange(parseFloat(e.target.value))}
+                className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                <span>{__("settings.small")}</span>
+                <span>{__("settings.large")}</span>
               </div>
             </div>
             <div>

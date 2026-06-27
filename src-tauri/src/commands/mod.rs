@@ -3,3 +3,4 @@ pub mod groups;
 pub mod reminders;
 pub mod export;
 pub mod images;
+pub mod fonts;
