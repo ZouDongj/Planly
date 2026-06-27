@@ -1,0 +1,785 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.5);
+  --radius-4xl: calc(var(--radius) * 3);
+}
+
+@theme {
+  --color-brand: #6366f1;
+  --color-brand-light: #818cf8;
+  --color-brand-dark: #4f46e5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f3f3;
+  --color-text: #1e1e1e;
+  --color-text-muted: #8a8a8a;
+  --color-bg-glass: oklch(1 0 0 / 50%);
+  /* Priority / status — fixed semantic hues, lifted in .dark */
+  --color-priority-p0: oklch(0.58 0.22 25);
+  --color-priority-p1: oklch(0.70 0.17 65);
+  --color-priority-p2: oklch(0.55 0.20 277);
+  --color-priority-p3: oklch(0.62 0.16 150);
+  --color-status-todo: oklch(0.55 0.02 260);
+  --color-status-in_progress: oklch(0.70 0.17 65);
+  --color-status-done: oklch(0.62 0.16 150);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.15 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
+  --primary: oklch(0.45 0.2 270);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.15 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.15 0 0);
+  --destructive: oklch(0.55 0.25 25);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
+  --ring: oklch(0.45 0.2 270);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.15 0 0);
+  --sidebar-primary: oklch(0.45 0.2 270);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0 0);
+  --sidebar-accent-foreground: oklch(0.15 0 0);
+  --sidebar-border: oklch(0.9 0 0);
+  --sidebar-ring: oklch(0.45 0.2 270);
+}
+
+/* ─── Kanban column tints (和風 / wafū low-saturation) ───
+   藍鼠 (ainezumi, indigo-gray)   / 柿渋 (kakishibu, persimmon)
+   / 利休茶 (rikyūcha, tea green). Direct oklch – no color-mix so
+   hues survive Tailwind's arbitrary-value pipeline intact. */
+:root {
+  --kanban-todo-bg: oklch(0.945 0.008 258);
+  --kanban-progress-bg: oklch(0.948 0.008 45);
+  --kanban-done-bg: oklch(0.945 0.008 140);
+}
+
+/* ─── Light Theme Presets ───
+   Each theme keeps a clean near-white background (not garish) and carries its
+   identity through the primary/accent/sidebar + a *light* hue tint. The default
+   (:root) is untouched neutral white + indigo. */
+
+/* github — faithful github.com: cool gray app frame (#f6f8fa) + white content cards,
+   GitHub-blue (#0969da) links/buttons, cool-gray text. Layout is bg-surface-muted
+   (outer = #f6f8fa gray) wrapping bg-sidebar/50 (inner = pure white). */
+[data-theme="github"] {
+  --color-brand: #0969da;
+  --color-brand-light: #218bff;
+  --color-brand-dark: #0550ae;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f6f8fa;
+  --color-text: #1f2328;
+  --color-text-muted: #656d76;
+  --background: oklch(0.97 0.003 250);
+  --foreground: oklch(0.22 0.004 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.004 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.004 250);
+  --primary: oklch(0.55 0.19 250);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.004 250);
+  --secondary-foreground: oklch(0.22 0.004 250);
+  --muted: oklch(0.96 0.004 250);
+  --muted-foreground: oklch(0.52 0.006 250);
+  --accent: oklch(0.95 0.02 250);
+  --accent-foreground: oklch(0.22 0.004 250);
+  --border: oklch(0.87 0.004 250);
+  --input: oklch(0.87 0.004 250);
+  --ring: oklch(0.55 0.19 250);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.22 0.004 250);
+  --sidebar-primary: oklch(0.22 0.004 250);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.93 0.003 250);
+  --sidebar-accent-foreground: oklch(0.22 0.004 250);
+  --sidebar-border: oklch(0.87 0.004 250);
+  --sidebar-ring: oklch(0.55 0.19 250);
+}
+
+/* notion — warm paper: warm-gray app frame + warm-white content cards, Notion-blue accent.
+   surface-muted = warm light gray (#f7f6f3), sidebar = warm white so inner cards read white. */
+[data-theme="notion"] {
+  --color-brand: #2eaadc;
+  --color-brand-light: #5dc9e8;
+  --color-brand-dark: #0f8bb5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f6f3;
+  --color-text: #37352f;
+  --color-text-muted: #9b9a97;
+  --background: oklch(0.97 0.006 75);
+  --foreground: oklch(0.22 0.008 60);
+  --card: oklch(0.995 0.005 75);
+  --card-foreground: oklch(0.22 0.008 60);
+  --popover: oklch(0.995 0.005 75);
+  --popover-foreground: oklch(0.22 0.008 60);
+  --primary: oklch(0.55 0.11 230);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.97 0.006 75);
+  --secondary-foreground: oklch(0.22 0.008 60);
+  --muted: oklch(0.97 0.006 75);
+  --muted-foreground: oklch(0.5 0.008 60);
+  --accent: oklch(0.96 0.012 75);
+  --accent-foreground: oklch(0.22 0.008 60);
+  --border: oklch(0.91 0.006 75);
+  --input: oklch(0.91 0.006 75);
+  --ring: oklch(0.55 0.11 230);
+  --sidebar: oklch(0.998 0.006 75);
+  --sidebar-foreground: oklch(0.22 0.008 60);
+  --sidebar-primary: oklch(0.55 0.11 230);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0.012 75);
+  --sidebar-accent-foreground: oklch(0.22 0.008 60);
+  --sidebar-border: oklch(0.91 0.006 75);
+  --sidebar-ring: oklch(0.55 0.11 230);
+}
+
+/* minimal — pure monochrome, no hue (identity is black & white) */
+[data-theme="minimal"] {
+  --color-brand: #18181b;
+  --color-brand-light: #3f3f46;
+  --color-brand-dark: #09090b;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fafafa;
+  --color-text: #18181b;
+  --color-text-muted: #71717a;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.14 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.14 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.14 0 0);
+  --primary: oklch(0.14 0 0);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.14 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.14 0 0);
+  --border: oklch(0.92 0 0);
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.14 0 0);
+  --sidebar: oklch(0.98 0 0);
+  --sidebar-foreground: oklch(0.14 0 0);
+  --sidebar-primary: oklch(0.14 0 0);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
+  --sidebar-accent-foreground: oklch(0.14 0 0);
+  --sidebar-border: oklch(0.92 0 0);
+  --sidebar-ring: oklch(0.14 0 0);
+}
+
+/* ocean — teal: teal primary, light teal-tinted canvas + sidebar */
+[data-theme="ocean"] {
+  --color-brand: #0d9488;
+  --color-brand-light: #2dd4bf;
+  --color-brand-dark: #0f766e;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0fdfa;
+  --color-text: #134e4a;
+  --color-text-muted: #5f9ea0;
+  --background: oklch(0.985 0.014 175);
+  --foreground: oklch(0.2 0.035 175);
+  --card: oklch(0.995 0.008 175);
+  --card-foreground: oklch(0.2 0.035 175);
+  --popover: oklch(0.995 0.008 175);
+  --popover-foreground: oklch(0.2 0.035 175);
+  --primary: oklch(0.52 0.13 175);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.014 175);
+  --secondary-foreground: oklch(0.2 0.035 175);
+  --muted: oklch(0.96 0.014 175);
+  --muted-foreground: oklch(0.5 0.035 175);
+  --accent: oklch(0.95 0.03 175);
+  --accent-foreground: oklch(0.2 0.035 175);
+  --border: oklch(0.9 0.025 175);
+  --input: oklch(0.9 0.025 175);
+  --ring: oklch(0.52 0.13 175);
+  --sidebar: oklch(0.975 0.02 175);
+  --sidebar-foreground: oklch(0.2 0.035 175);
+  --sidebar-primary: oklch(0.52 0.13 175);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.03 175);
+  --sidebar-accent-foreground: oklch(0.2 0.035 175);
+  --sidebar-border: oklch(0.9 0.025 175);
+  --sidebar-ring: oklch(0.52 0.13 175);
+}
+
+/* sunset — warm orange/amber: orange primary, warm-tinted canvas + sidebar */
+[data-theme="sunset"] {
+  --color-brand: #ea580c;
+  --color-brand-light: #f97316;
+  --color-brand-dark: #c2410c;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fff7ed;
+  --color-text: #1c1917;
+  --color-text-muted: #a8a29e;
+  --background: oklch(0.985 0.014 65);
+  --foreground: oklch(0.18 0.02 50);
+  --card: oklch(0.995 0.008 65);
+  --card-foreground: oklch(0.18 0.02 50);
+  --popover: oklch(0.995 0.008 65);
+  --popover-foreground: oklch(0.18 0.02 50);
+  --primary: oklch(0.6 0.17 55);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.014 65);
+  --secondary-foreground: oklch(0.18 0.02 50);
+  --muted: oklch(0.96 0.014 65);
+  --muted-foreground: oklch(0.5 0.02 50);
+  --accent: oklch(0.95 0.03 65);
+  --accent-foreground: oklch(0.18 0.02 50);
+  --border: oklch(0.9 0.025 65);
+  --input: oklch(0.9 0.025 65);
+  --ring: oklch(0.6 0.17 55);
+  --sidebar: oklch(0.975 0.02 65);
+  --sidebar-foreground: oklch(0.18 0.02 50);
+  --sidebar-primary: oklch(0.6 0.17 55);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.03 65);
+  --sidebar-accent-foreground: oklch(0.18 0.02 50);
+  --sidebar-border: oklch(0.9 0.025 65);
+  --sidebar-ring: oklch(0.6 0.17 55);
+}
+
+.dark {
+  --color-brand: #818cf8;
+  --color-brand-light: #a5b4fc;
+  --color-brand-dark: #6366f1;
+  --color-surface: #1c1c1c;
+  --color-surface-muted: #111111;
+  --color-text: #e4e4e4;
+  --color-text-muted: #9a9a9a;
+  --color-bg-glass: oklch(0.2 0 0 / 50%);
+  --color-priority-p0: oklch(0.68 0.21 25);
+  --color-priority-p1: oklch(0.75 0.16 65);
+  --color-priority-p2: oklch(0.68 0.18 277);
+  --color-priority-p3: oklch(0.72 0.15 150);
+  --color-status-todo: oklch(0.65 0.02 260);
+  --color-status-in_progress: oklch(0.75 0.16 65);
+  --color-status-done: oklch(0.72 0.15 150);
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.6 0.2 270);
+  --primary-foreground: oklch(0.15 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.22 0 0);
+  --accent-foreground: oklch(0.97 0 0);
+  --destructive: oklch(0.7 0.2 22);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.2 270);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.18 0 0);
+  --sidebar-foreground: oklch(0.97 0 0);
+  --sidebar-primary: oklch(0.6 0.2 270);
+  --sidebar-primary-foreground: oklch(0.15 0 0);
+  --sidebar-accent: oklch(0.22 0 0);
+  --sidebar-accent-foreground: oklch(0.97 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.6 0.2 270);
+  --kanban-todo-bg: oklch(0.20 0.012 258);
+  --kanban-progress-bg: oklch(0.20 0.012 45);
+  --kanban-done-bg: oklch(0.20 0.012 140);
+}
+
+/* ─── One Dark Pro ───
+   Faithful adaptation of the classic Atom/VSCode dark syntax theme.
+   Deep blue-grey canvas (#282c34), soft-blue primary (#61afef),
+   muted warm accents. Overrides the default .dark palette. */
+[data-theme="one-dark-pro"] {
+  --color-brand: #61afef;
+  --color-brand-light: #8fc8ff;
+  --color-brand-dark: #4d8fd9;
+  --color-surface: #282c34;
+  --color-surface-muted: #21252b;
+  --color-text: #abb2bf;
+  --color-text-muted: #5c6370;
+  --color-bg-glass: oklch(0.27 0.012 260 / 50%);
+  --background: oklch(0.27 0.012 260);
+  --foreground: oklch(0.80 0.01 255);
+  --card: oklch(0.235 0.012 260);
+  --card-foreground: oklch(0.80 0.01 255);
+  --popover: oklch(0.25 0.012 260);
+  --popover-foreground: oklch(0.80 0.01 255);
+  --primary: oklch(0.65 0.15 252);
+  --primary-foreground: oklch(0.15 0 0);
+  --secondary: oklch(0.28 0.012 260);
+  --secondary-foreground: oklch(0.80 0.01 255);
+  --muted: oklch(0.28 0.012 260);
+  --muted-foreground: oklch(0.50 0.012 260);
+  --accent: oklch(0.30 0.05 252);
+  --accent-foreground: oklch(0.80 0.01 255);
+  --destructive: oklch(0.58 0.18 22);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.65 0.15 252);
+  --sidebar: oklch(0.235 0.012 260);
+  --sidebar-foreground: oklch(0.80 0.01 255);
+  --sidebar-primary: oklch(0.65 0.15 252);
+  --sidebar-primary-foreground: oklch(0.15 0 0);
+  --sidebar-accent: oklch(0.28 0.012 260);
+  --sidebar-accent-foreground: oklch(0.80 0.01 255);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.65 0.15 252);
+  --kanban-todo-bg: oklch(0.29 0.010 258);
+  --kanban-progress-bg: oklch(0.29 0.010 45);
+  --kanban-done-bg: oklch(0.29 0.010 140);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  button:not(:disabled):active {
+    transform: scale(0.95);
+  }
+  button:focus-visible, a:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--color-ring, oklch(0.55 0.18 260));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  body {
+    margin: 0;
+    font-family: 'Geist Variable', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+    overflow: hidden !important;
+    height: 100%;
+    scrollbar-gutter: stable !important;
+    padding-right: 0 !important;
+    -webkit-font-smoothing: antialiased;
+  }
+  html {
+    @apply font-sans;
+    height: 100%;
+  }
+}
+
+#root {
+  height: 100%;
+}
+
+/* Global scrollbar — subtle, no arrows, track matches background */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0 0 0 / 15%) transparent;
+}
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: oklch(0 0 0 / 15%);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: oklch(0 0 0 / 25%);
+}
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button:vertical:decrement,
+*::-webkit-scrollbar-button:vertical:increment,
+*::-webkit-scrollbar-button:horizontal:decrement,
+*::-webkit-scrollbar-button:horizontal:increment,
+*::-webkit-scrollbar-corner {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(calc(100% + 4px)); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slide-down {
+  from { transform: translateY(calc(-100% - 4px)); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up {
+  animation: slide-up 0.22s cubic-bezier(0.2, 0, 0, 1) backwards;
+}
+.animate-slide-down {
+  animation: slide-down 0.22s cubic-bezier(0.2, 0, 0, 1) backwards;
+}
+
+@keyframes drawer-enter {
+  from {
+    transform: translateX(80px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-drawer-enter {
+  animation: drawer-enter 0.4s ease-out;
+  overflow: hidden;
+}
+
+@keyframes drawer-slide-right {
+  from {
+    transform: translateX(60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes drawer-slide-left {
+  from {
+    transform: translateX(-60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slide-right {
+  animation: drawer-slide-right 0.3s ease-out;
+}
+.animate-slide-left {
+  animation: drawer-slide-left 0.3s ease-out;
+}
+
+@keyframes overlay-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-overlay-enter {
+  animation: overlay-enter 0.25s ease-out;
+}
+
+/* Sheet (slide-out panel) animations
+   CRITICAL: Override base-ui's `hidden` attribute (which sets display:none).
+   When keepMounted, display:none → display:flex on first open causes a full
+   layout reflow that jitters the calendar. Instead we keep the element in the
+   render tree with visibility:hidden, so layout is always pre-computed. */
+.sheet-panel {
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+.sheet-panel[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sheet-panel[data-side="right"] {
+  transform: translateX(4rem);
+}
+.sheet-panel[data-side="right"][data-open] {
+  transform: translateX(0);
+}
+@starting-style {
+  .sheet-panel[data-side="right"][data-open] {
+    transform: translateX(4rem);
+    opacity: 0;
+  }
+}
+.sheet-panel[data-side="left"] {
+  transform: translateX(-4rem);
+}
+.sheet-panel[data-side="left"][data-open] {
+  transform: translateX(0);
+}
+@starting-style {
+  .sheet-panel[data-side="left"][data-open] {
+    transform: translateX(-4rem);
+    opacity: 0;
+  }
+}
+.sheet-panel[data-side="bottom"] {
+  transform: translateY(2.5rem);
+}
+.sheet-panel[data-side="bottom"][data-open] {
+  transform: translateY(0);
+}
+@starting-style {
+  .sheet-panel[data-side="bottom"][data-open] {
+    transform: translateY(2.5rem);
+    opacity: 0;
+  }
+}
+.sheet-panel[data-side="top"] {
+  transform: translateY(-2.5rem);
+}
+.sheet-panel[data-side="top"][data-open] {
+  transform: translateY(0);
+}
+@starting-style {
+  .sheet-panel[data-side="top"][data-open] {
+    transform: translateY(-2.5rem);
+    opacity: 0;
+  }
+}
+
+/* Override base-ui `hidden` attribute → use visibility instead of display:none
+   to avoid layout reflow on first open (calendar bounce fix). */
+.sheet-panel[hidden],
+.sheet-overlay[hidden] {
+  display: flex !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sheet-panel[hidden] {
+  opacity: 0;
+}
+.sheet-overlay[hidden] {
+  opacity: 0;
+}
+
+/* ─── Dialog (modal) animations — same mechanism as Sheet ─── */
+.dialog-panel {
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+.dialog-panel[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.dialog-panel:not([data-open]) {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+@starting-style {
+  .dialog-panel[data-open] {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+/* Override base-ui `hidden` → visibility instead of display:none */
+.dialog-panel[hidden] {
+  display: grid !important;
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.dialog-overlay {
+  transition: opacity 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+.dialog-overlay[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+}
+@starting-style {
+  .dialog-overlay[data-open] {
+    opacity: 0;
+  }
+}
+.dialog-overlay[hidden] {
+  display: block !important;
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Sheet backdrop fade — no blur */
+.sheet-overlay {
+  transition: opacity 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+.sheet-overlay[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+}
+@starting-style {
+  .sheet-overlay[data-open] {
+    opacity: 0;
+  }
+}
+
+/* TipTap editor styles */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: oklch(0.5 0 0);
+  pointer-events: none;
+  height: 0;
+  font-size: 0.75rem;
+}
+.tiptap:focus {
+  outline: none;
+}
+.tiptap {
+  outline: none;
+}
+.tiptap img {
+  display: inline-block;
+  max-width: calc(100% - 4px);
+  height: auto;
+  max-height: 200px;
+  border-radius: 0.5rem;
+  margin: 0 2px;
+  border: 1px solid oklch(0.9 0 0);
+  vertical-align: bottom;
+  cursor: default;
+}
+.dark .tiptap img {
+  border-color: oklch(0.3 0 0);
+}
+.tiptap > * + * {
+  margin-top: 0.25rem;
+}
+.tiptap ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 0.25rem 0;
+}
+.tiptap ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin: 0.25rem 0;
+}
+.tiptap li {
+  margin: 0.125rem 0;
+}
+.tiptap li::marker {
+  color: oklch(0.5 0 0);
+}
+
+/* Hide scrollbar but keep scroll functionality and reserved space */
+.scrollbar-hidden {
+  overflow-y: scroll;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari */
+}
+
+/* ─── Stable scrollbar gutter ───
+   Prevents layout bounce when overflow-y-auto containers switch between
+   needing / not needing a scrollbar (e.g. CalendarView + Sheet open). */
+.stable-scroll {
+  scrollbar-gutter: stable;
+}
+
+@keyframes dropdown-open {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes dropdown-close {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+}
+
+.animate-dropdown-open {
+  animation: dropdown-open 0.2s ease-out both;
+  will-change: transform, opacity;
+}
+.animate-dropdown-close {
+  animation: dropdown-close 0.15s ease-out both;
+  will-change: transform, opacity;
+}
+
+@keyframes task-exit {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+.animate-task-exit {
+  animation: task-exit 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes task-enter {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-task-enter {
+  animation: task-enter 0.25s ease-out;
+}
